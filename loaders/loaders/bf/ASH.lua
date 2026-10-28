@@ -1,5 +1,5 @@
 -- =================================================================
--- AUTOSYNC HUB - PREMIUM BILINGUAL MINT & RED EDITION
+-- AUTOSYNC HUB - PREMIUM BILINGUAL MINT & RED EDITION (FINAL VERSION)
 -- =================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -110,7 +110,7 @@ NavScroll.Parent = MainFrame
 NavScroll.BackgroundTransparency = 1
 NavScroll.Position = UDim2.new(0, 0, 0, 52)
 NavScroll.Size = UDim2.new(1, 0, 0, 40)
-NavScroll.CanvasSize = UDim2.new(0, 650, 0, 0) -- เลื่อนแนวนอนยาวๆ ได้
+NavScroll.CanvasSize = UDim2.new(0, 650, 0, 0)
 NavScroll.ScrollBarThickness = 0
 
 NavList.Parent = NavScroll
@@ -159,7 +159,7 @@ local function CreateTab(name, order)
     Page.Visible = false
     Page.ScrollBarThickness = 2
     Page.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 170)
-    Page.CanvasSize = UDim2.new(0, 0, 0, 400)
+    Page.CanvasSize = UDim2.new(0, 0, 0, 500)
     
     local PageList = Instance.new("UIListLayout")
     PageList.Parent = Page
@@ -168,7 +168,6 @@ local function CreateTab(name, order)
     
     tabs[name] = {Button = TabBtn, Stroke = TabStroke, Page = Page}
     
-    -- อนิเมชั่น Hover บนแท็บหลัก
     TabBtn.MouseEnter:Connect(function()
         if currentTab ~= name then
             TweenService:Create(TabBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(42, 42, 48)}):Play()
@@ -180,295 +179,316 @@ local function CreateTab(name, order)
         end
     end)
     
+    TabBtn.MouseButton1Click:Connect(function()
+        for tName, tData in pairs(tabs) do
+            if tName == name then
+                currentTab = name
+                tData.Page.Visible = true
+                TweenService:Create(tData.Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(16, 48, 38), TextColor3 = Color3.fromRGB(0, 255, 170)}):Play()
+                TweenService:Create(tData.Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(0, 255, 170)}):Play()
+            else
+                tData.Page.Visible = false
+                TweenService:Create(tData.Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(32, 32, 36), TextColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+                TweenService:Create(tData.Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(45, 45, 50)}):Play()
+            end
+        end
+    end)
+    
     return Page
 end
 
-local function SwitchTab(name)
-    for tName, tData in pairs(tabs) do
-        if tName == name then
-            currentTab = name
-            tData.Page.Visible = true
-            TweenService:Create(tData.Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(16, 48, 38), TextColor3 = Color3.fromRGB(0, 255, 170)}):Play()
-            TweenService:Create(tData.Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(0, 255, 170)}):Play()
-        else
-            tData.Page.Visible = false
-            TweenService:Create(tData.Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(32, 32, 36), TextColor3 = Color3.fromRGB(200, 200, 200)}):Play()
-            TweenService:Create(tData.Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(45, 45, 50)}):Play()
-        end
-    end
-end
+-- สร้างแท็บทั้ง 4 หมวดหมู่
+local DashboardPage = CreateTab("Dashboard", 1)
+local CheatsPage = CreateTab("Cheats / Risk", 2)
+local ExecutorPage = CreateTab("Executor", 3)
+local InfoPage = CreateTab("Hub Info", 4)
 
--- สร้างแท็บทั้ง 4 หมวดหมู่ตามสั่ง
-local MainTab = CreateTab("Dashboard", 1)
-local CombatTab = CreateTab("Cheats / Risk", 2)
-local ExecTab = CreateTab("Executor", 3)
-local InfoTab = CreateTab("Hub Info", 4)
+-- ตั้งค่าเริ่มต้นที่หน้า Dashboard
+tabs["Dashboard"].Page.Visible = true
+currentTab = "Dashboard"
+tabs["Dashboard"].Button.BackgroundColor3 = Color3.fromRGB(16, 48, 38)
+tabs["Dashboard"].Button.TextColor3 = Color3.fromRGB(0, 255, 170)
+tabs["Dashboard"].Stroke.Color = Color3.fromRGB(0, 255, 170)
 
 -- =================================================================
--- 4. ส่วนประกอบ UI Elements (Buttons, Toggles, Sliders)
+-- 4. ส่วนประกอบ UI Elements (ต่อจากโค้ดเดิมของคุณจนเสร็จสมบูรณ์)
 -- =================================================================
-local function CreateToggle(parent, text, callback)
+
+-- ฟังก์ชันสร้าง Toggle เปิด-ปิด
+local function CreateToggle(parent, text, default, callback)
     local Frame = Instance.new("Frame")
     local Label = Instance.new("TextLabel")
     local Btn = Instance.new("TextButton")
     local Corner = Instance.new("UICorner")
     local Stroke = Instance.new("UIStroke")
+    local Indicator = Instance.new("Frame")
+    local IndCorner = Instance.new("UICorner")
     
     Frame.Size = UDim2.new(0.96, 0, 0, 40)
-    Frame.BackgroundTransparency = 1
+    Frame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
     Frame.Parent = parent
+    local fCorner = Instance.new("UICorner")
+    fCorner.CornerRadius = UDim.new(0, 8)
+    fCorner.Parent = Frame
     
     Label.Size = UDim2.new(0.7, 0, 1, 0)
+    Label.Position = UDim2.new(0, 12, 0, 0)
     Label.BackgroundTransparency = 1
     Label.Font = Enum.Font.GothamSemibold
     Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    Label.TextColor3 = Color3.fromRGB(230, 230, 230)
     Label.TextSize = 13
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Frame
     
-    Btn.Size = UDim2.new(0, 45, 0, 24)
-    Btn.Position = UDim2.new(1, -50, 0, 8)
-    Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    Btn.Size = UDim2.new(0, 45, 0, 22)
+    Btn.Position = UDim2.new(1, -57, 0, 9)
+    Btn.BackgroundColor3 = Color3.fromRGB(36, 36, 40)
     Btn.Text = ""
     Btn.Parent = Frame
-    
-    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.CornerRadius = UDim.new(1, 0)
     Corner.Parent = Btn
-    Stroke.Color = Color3.fromRGB(60, 60, 65)
+    Stroke.Color = Color3.fromRGB(55, 55, 60)
     Stroke.Thickness = 1
     Stroke.Parent = Btn
     
-    local active = false
+    Indicator.Size = UDim2.new(0, 16, 0, 16)
+    Indicator.Position = default and UDim2.new(1, -20, 0, 3) or UDim2.new(0, 4, 0, 3)
+    Indicator.BackgroundColor3 = default and Color3.fromRGB(0, 255, 170) or Color3.fromRGB(150, 150, 150)
+    Indicator.Parent = Btn
+    IndCorner.CornerRadius = UDim.new(1, 0)
+    IndCorner.Parent = Indicator
+    
+    local enabled = default
     Btn.MouseButton1Click:Connect(function()
-        active = not active
-        local tInfo = TweenInfo.new(0.2)
-        if active then
-            TweenService:Create(Btn, tInfo, {BackgroundColor3 = Color3.fromRGB(16, 48, 38)}):Play()
-            TweenService:Create(Stroke, tInfo, {Color = Color3.fromRGB(0, 255, 170)}):Play()
-        else
-            TweenService:Create(Btn, tInfo, {BackgroundColor3 = Color3.fromRGB(40, 40, 45)}):Play()
-            TweenService:Create(Stroke, tInfo, {Color = Color3.fromRGB(60, 60, 65)}):Play()
-        end
-        callback(active)
+        enabled = not enabled
+        local targetPos = enabled and UDim2.new(1, -20, 0, 3) or UDim2.new(0, 4, 0, 3)
+        local targetColor = enabled and Color3.fromRGB(0, 255, 170) or Color3.fromRGB(150, 150, 150)
+        TweenService:Create(Indicator, TweenInfo.new(0.2), {Position = targetPos, BackgroundColor3 = targetColor}):Play()
+        task.spawn(callback, enabled)
     end)
 end
 
-local function CreateInputBox(parent, text, placeholder, callback)
+-- ฟังก์ชันสร้าง Slider ตัวปรับแต่งระดับ
+local function CreateSlider(parent, text, min, max, default, callback)
     local Frame = Instance.new("Frame")
     local Label = Instance.new("TextLabel")
-    local Box = Instance.new("TextBox")
-    local Corner = Instance.new("UICorner")
-    local Stroke = Instance.new("UIStroke")
+    local ValueLabel = Instance.new("TextLabel")
+    local SliderBar = Instance.new("Frame")
+    local SliderFill = Instance.new("Frame")
+    local SliderTrigger = Instance.new("TextButton")
     
-    Frame.Size = UDim2.new(0.96, 0, 0, 40)
-    Frame.BackgroundTransparency = 1
+    Frame.Size = UDim2.new(0.96, 0, 0, 45)
+    Frame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
     Frame.Parent = parent
+    local fCorner = Instance.new("UICorner")
+    fCorner.CornerRadius = UDim.new(0, 8)
+    fCorner.Parent = Frame
     
-    Label.Size = UDim2.new(0.6, 0, 1, 0)
+    Label.Size = UDim2.new(0.5, 0, 0, 20)
+    Label.Position = UDim2.new(0, 12, 0, 4)
     Label.BackgroundTransparency = 1
     Label.Font = Enum.Font.GothamSemibold
     Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    Label.TextColor3 = Color3.fromRGB(230, 230, 230)
     Label.TextSize = 13
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Frame
     
-    Box.Size = UDim2.new(0, 80, 0, 26)
-    Box.Position = UDim2.new(1, -85, 0, 7)
-    Box.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
-    Box.Font = Enum.Font.Gotham
-    Box.PlaceholderText = placeholder
-    Box.Text = ""
-    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Box.TextSize = 12
-    Box.Parent = Frame
+    ValueLabel.Size = UDim2.new(0.4, 0, 0, 20)
+    ValueLabel.Position = UDim2.new(1, -112, 0, 4)
+    ValueLabel.BackgroundTransparency = 1
+    ValueLabel.Font = Enum.Font.GothamSemibold
+    ValueLabel.Text = tostring(default)
+    ValueLabel.TextColor3 = Color3.fromRGB(0, 255, 170)
+    ValueLabel.TextSize = 13
+    ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    ValueLabel.Parent = Frame
     
-    Corner.CornerRadius = UDim.new(0, 6)
-    Corner.Parent = Box
-    Stroke.Color = Color3.fromRGB(50, 50, 55)
-    Stroke.Parent = Box
+    SliderBar.Size = UDim2.new(1, -24, 0, 6)
+    SliderBar.Position = UDim2.new(0, 12, 0, 28)
+    SliderBar.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+    SliderBar.Parent = Frame
+    local sbCorner = Instance.new("UICorner")
+    sbCorner.CornerRadius = UDim.new(1, 0)
+    sbCorner.Parent = SliderBar
     
-    Box.FocusLost:Connect(function(ep)
-        if ep then 
-            callback(Box.Text) 
+    SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    SliderFill.BackgroundColor3 = Color3.fromRGB(0, 255, 170)
+    SliderFill.Parent = SliderBar
+    local sfCorner = Instance.new("UICorner")
+    sfCorner.CornerRadius = UDim.new(1, 0)
+    sfCorner.Parent = SliderFill
+    
+    SliderTrigger.Size = UDim2.new(1, 0, 1, 0)
+    SliderTrigger.BackgroundTransparency = 1
+    SliderTrigger.Text = ""
+    SliderTrigger.Parent = SliderBar
+    
+    local isDragging = false
+    local function update(input)
+        local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+        SliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        local value = math.floor(min + (pos * (max - min)))
+        ValueLabel.Text = tostring(value)
+        task.spawn(callback, value)
+    end
+    
+    SliderTrigger.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true
+            update(input)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            update(input)
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
         end
     end)
 end
 
 -- =================================================================
--- 5. บรรจุฟังก์ชันการทำงานในหน้าต่างๆ
+-- 5. บรรจุฟังก์ชันการโกงและระบบสั่งการของแต่ละหน้าใช้งาน
 -- =================================================================
 
--- [TAB 1: DASHBOARD]
-local wsVal, jpVal, gravVal = 16, 50, 196.2
-local loopSpeed, loopJump = false, false
-
-CreateInputBox(MainTab, "ความเร็วการวิ่ง (WalkSpeed)", "16", function(val)
-    wsVal = tonumber(val) or 16
-    if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-        lp.Character.Humanoid.WalkSpeed = wsVal
+-- [PAGE 1: DASHBOARD] - ปรับแต่งความสามารถทั่วไปเรียบง่าย
+CreateSlider(DashboardPage, "WalkSpeed (ความเร็วการวิ่ง)", 16, 250, 16, function(value)
+    if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+        lp.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
     end
 end)
 
-CreateToggle(MainTab, "ล็อกความเร็วถาวร (Loop Speed)", function(state)
-    loopSpeed = state
-end)
-
-CreateInputBox(MainTab, "พลังกระโดดสูง (JumpPower)", "50", function(val)
-    jpVal = tonumber(val) or 50
-    if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-        lp.Character.Humanoid.JumpPower = jpVal
-        lp.Character.Humanoid.UseJumpPower = true
+CreateSlider(DashboardPage, "JumpPower (แรงกระโดด)", 50, 300, 50, function(value)
+    if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+        lp.Character:FindFirstChildOfClass("Humanoid").UseJumpPower = true
+        lp.Character:FindFirstChildOfClass("Humanoid").JumpPower = value
     end
 end)
 
-CreateToggle(MainTab, "ล็อกพลังกระโดดถาวร (Loop Jump)", function(state)
-    loopJump = state
+CreateSlider(DashboardPage, "Gravity Control (แรงโน้มถ่วง)", 0, 196, 196, function(value)
+    workspace.Gravity = value
 end)
 
-CreateInputBox(MainTab, "ปรับแรงโน้มถ่วง (Gravity)", "196.2", function(val)
-    gravVal = tonumber(val) or 196.2
-    game.Workspace.Gravity = gravVal
+-- [PAGE 2: CHEATS / RISK] - หมวดหมู่ระบบโกงระดับสูง
+local infJumpEnabled = false
+CreateToggle(CheatsPage, "Infinite Jump (กระโดดไม่จำกัด)", false, function(state)
+    infJumpEnabled = state
 end)
 
-RunService.RenderStepped:Connect(function()
-    if loopSpeed and lp.Character and lp.Character:FindFirstChild("Humanoid") then
-        lp.Character.Humanoid.WalkSpeed = wsVal
-    end
-    if loopJump and lp.Character and lp.Character:FindFirstChild("Humanoid") then
-        lp.Character.Humanoid.JumpPower = jpVal
-        lp.Character.Humanoid.UseJumpPower = true
+UserInputService.JumpRequest:Connect(function()
+    if infJumpEnabled and lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+        lp.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
--- [TAB 2: CHEATS / RISK]
-local infJumpActive = false
-CreateToggle(CombatTab, "กระโดดไม่จำกัด (Infinite Jump)", function(state)
-    infJumpActive = state
-end)
-
-game:GetService("UserInputService").JumpRequest:Connect(function()
-    if infJumpActive and lp.Character and lp.Character:FindFirstChild("Humanoid") then
-        lp.Character.Humanoid:ChangeState("Jumping")
-    end
-end)
-
-CreateToggle(CombatTab, "หายตัวถาวร (Invisibility)", function(state)
-    if lp.Character and lp.Character:FindFirstChild("LowerTorso") then
-        for _, v in pairs(lp.Character:GetDescendants()) do
-            if v:IsA("BasePart") or v:IsA("Decal") then
-                v.Transparency = state and 1 or 0
+CreateToggle(CheatsPage, "Invisibility Client (หายตัวถาวร)", false, function(state)
+    if lp.Character then
+        for _, part in pairs(lp.Character:GetDescendants()) do
+            if part:IsA("BasePart") or part:IsA("Decal") then
+                part.Transparency = state and 1 or 0
             end
         end
     end
 end)
 
-CreateToggle(CombatTab, "เปิดระบบอมตะหลอก (God Mode Client)", function(state)
-    if state and lp.Character and lp.Character:FindFirstChild("Humanoid") then
-        lp.Character.Humanoid.MaxHealth = 999999
-        lp.Character.Humanoid.Health = 999999
-    else
-        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-            lp.Character.Humanoid.MaxHealth = 100
-            lp.Character.Humanoid.Health = 100
+CreateToggle(CheatsPage, "God Mode Client (อมตะหลอก)", false, function(state)
+    if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+        if state then
+            lp.Character:FindFirstChildOfClass("Humanoid").MaxHealth = math.huge
+            lp.Character:FindFirstChildOfClass("Humanoid").Health = math.huge
+        else
+            lp.Character:FindFirstChildOfClass("Humanoid").MaxHealth = 100
+            lp.Character:FindFirstChildOfClass("Humanoid").Health = 100
         end
     end
 end)
 
-CreateToggle(CombatTab, "ป้องกันระบบแอนตี้ชีท (Bypass Anti-Cheat)", function(state)
+CreateToggle(CheatsPage, "Bypass Basic Anti-Cheat (ข้ามการตรวจจับ)", false, function(state)
     if state then
-        local g = hookmetamethod(game, "__index", function(self, key)
-            if self == lp.Character and (key == "WalkSpeed" or key == "JumpPower") then
-                return 16
+        local mt = getrawmetatable(game)
+        if setreadonly then setreadonly(mt, false) end
+        local old = mt.__namecall
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if tostring(method) == "Kick" or tostring(method) == "kick" then
+                return nil
             end
-            return g(self, key)
+            return old(self, ...)
         end)
     end
 end)
 
--- [TAB 3: EXECUTOR (ระบบเขียนสด)]
-local ExecBox = Instance.new("TextBox")
+-- [PAGE 3: EXECUTOR] - ช่อง Textbox สำหรับรันสดคำสั่ง Lua
+local ExecTextBox = Instance.new("TextBox")
 local ExecBtn = Instance.new("TextButton")
 local ExecCorner = Instance.new("UICorner")
 
-ExecBox.Size = UDim2.new(0.96, 0, 0, 150)
-ExecBox.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
-ExecBox.Font = Enum.Font.Code
-ExecBox.Text = "-- พิมพ์โค้ด Lua ของคุณที่นี่เพื่อรันสด...\nprint('Hello AutoSync')"
-ExecBox.TextColor3 = Color3.fromRGB(0, 255, 170)
-ExecBox.TextSize = 11
-ExecBox.TextXAlignment = Enum.TextXAlignment.Left
-ExecBox.TextYAlignment = Enum.TextYAlignment.Top
-ExecBox.ClearTextOnFocus = false
-ExecBox.MultiLine = true
-ExecBox.Parent = ExecTab
+ExecTextBox.Size = UDim2.new(0.96, 0, 0, 150)
+ExecTextBox.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
+ExecTextBox.ClearTextOnFocus = false
+ExecTextBox.Font = Enum.Font.Code
+ExecTextBox.MultiLine = true
+ExecTextBox.Text = "-- พิมพ์คำสั่ง Lua ตรงนี้แล้วกด Execute ด้านล่าง"
+ExecTextBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+ExecTextBox.TextSize = 12
+ExecTextBox.TextXAlignment = Enum.TextXAlignment.Left
+ExecTextBox.TextYAlignment = Enum.TextYAlignment.Top
+ExecTextBox.Parent = ExecutorPage
+local etCorner = Instance.new("UICorner")
+etCorner.CornerRadius = UDim.new(0, 8)
+etCorner.Parent = ExecTextBox
 
-ExecBtn.Size = UDim2.new(0.96, 0, 0, 35)
+ExecBtn.Size = UDim2.new(0.96, 0, 0, 36)
 ExecBtn.BackgroundColor3 = Color3.fromRGB(220, 40, 60)
 ExecBtn.Font = Enum.Font.GothamBold
-ExecBtn.Text = "EXECUTE CODE"
+ExecBtn.Text = "EXECUTE LIVE CODE"
 ExecBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-ExecBtn.TextSize = 12
-ExecBtn.Parent = ExecTab
+ExecBtn.TextSize = 13
+ExecBtn.Parent = ExecutorPage
 
-ExecCorner.CornerRadius = UDim.new(0, 6)
+ExecCorner.CornerRadius = UDim.new(0, 8)
 ExecCorner.Parent = ExecBtn
 
 ExecBtn.MouseButton1Click:Connect(function()
-    local code = ExecBox.Text
-    local success, err = pcall(function()
-        assert(loadstring(code))()
-    end)
-    if not success then
-        warn("ASH Executor Error: " .. tostring(err))
+    local code = ExecTextBox.Text
+    if loadstring then
+        local success, err = pcall(loadstring(code))
+        if not success then
+            warn("AutoSync Live Exec Error: " .. tostring(err))
+        end
+    else
+        warn("Executor ในระบบของคุณไม่รองรับคำสั่ง loadstring ระดับระบบ!")
     end
 end)
 
--- [TAB 4: HUB INFO]
-local function CreateInfoText(parent, labelText, valueText)
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.96, 0, 0, 24)
-    Label.BackgroundTransparency = 1
-    Label.Font = Enum.Font.Gotham
-    Label.Text = "• " .. labelText .. ": " .. valueText
-    Label.TextColor3 = Color3.fromRGB(18, 180, 200)
-    Label.TextSize = 12
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = parent
-end
-
-CreateInfoText(InfoTab, "Hub Name", "AutoSync Hub")
-CreateInfoText(InfoTab, "Version", "1.0.0 (Premium UI)")
-CreateInfoText(InfoTab, "Developer", "mac-me & Team")
-CreateInfoText(InfoTab, "Discord Link", "discord.gg/autosync-hub")
-CreateInfoText(InfoTab, "Manual / Guide", "เปิดแท็บ Dashboard ปรับค่าตัวเลข แล้วกด Enter ได้เลย")
+-- [PAGE 4: HUB INFO] - หน้ารายละเอียดโปรเจกต์
+local InfoText = Instance.new("TextLabel")
+InfoText.Size = UDim2.new(0.96, 0, 0, 180)
+InfoText.BackgroundTransparency = 1
+InfoText.Font = Enum.Font.Gotham
+InfoText.Text = "PROJECT NAME: AutoSync Hub (ASH)\nVERSION: Premium Mint & Red Final\nSYSTEM COMPATIBILITY: Windows (Solara / Xeno)\nDEVELOPERS: Co-Developed successfully by User & Assistant.\n\n[สถานะระบบหลังบ้าน: พร้อมทำงานผ่าน GitHub Loader เรียบร้อย 100%]"
+InfoText.TextColor3 = Color3.fromRGB(180, 180, 180)
+InfoText.TextSize = 13
+InfoText.TextXAlignment = Enum.TextXAlignment.Left
+InfoText.TextYAlignment = Enum.TextYAlignment.Top
+InfoText.Parent = InfoPage
 
 -- =================================================================
--- 6. ระบบ อนิเมชั่น ซ่อน/เปิด หน้าต่าง (Icon Toggle & Close UI)
+-- 6. ระบบสลับหน้าการแสดงผล (Toggle UI System)
 -- =================================================================
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
 CloseBtn.MouseButton1Click:Connect(function()
-    local t1 = TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
-    t1:Play()
-    t1.Completed:Connect(function()
-        MainFrame.Visible = false
-        IconButton.Visible = true
-        IconButton.Size = UDim2.new(0, 0, 0, 0)
-        TweenService:Create(IconButton, TweenInfo.new(0.2, Enum.EasingStyle.Back), {Size = UDim2.new(0, 50, 0, 50)}):Play()
-    end)
+    MainFrame.Visible = false
+    IconButton.Visible = true
 end)
 
 IconButton.MouseButton1Click:Connect(function()
-    local t2 = TweenService:Create(IconButton, tweenInfo, {Size = UDim2.new(0, 0, 0, 0)})
-    t2:Play()
-    t2.Completed:Connect(function()
-        IconButton.Visible = false
-        MainFrame.Visible = true
-        TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 520, 0, 360), BackgroundTransparency = 0.05}):Play()
-    end)
+    IconButton.Visible = false
+    MainFrame.Visible = true
 end)
-
--- เริ่มต้นเปิดการใช้งาน
-SwitchTab("Dashboard")
