@@ -1,6 +1,6 @@
 -- =================================================================
--- AUTOSYNC HUB (ASH) - FIXED ULTIMATE RECTANGLE EDITION
--- ERROR BYPASS & STABLE VERSION (MINT - RED - BLACK)
+-- AUTOSYNC HUB (ASH) - ULTIMATE CUSTOM FULL EDITION v4 (COMPLETE)
+-- THEME: PREMIUM MINT - RED - BLACK (MAXIMUM DETAILED CONTROLS)
 -- =================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,11 +14,17 @@ ScreenGui.Parent = lp:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [ASSET ID] โลโก้ ASH ของคุณจากรูปภาพ
+-- [ASSET ID] โลโก้ ASH สไตล์อักษรไขว้ มิ้นต์-แดง-ดำ ของคุณ
 local LOGO_ASSET_ID = "rbxassetid://138379471192994" 
 
+-- ตัวแปรควบคุมระบบ Backend
 local LastDeathPosition = nil
 local HasPrompted = false
+local infJumpEnabled = false
+local AimbotEnabled = false
+local AutoClickEnabled = false
+local EspEnabled = false
+local GodModeEnabled = false
 
 -- =================================================================
 -- 1. สร้างปุ่มย่อไอคอนลอยทรงจัตุรัส (Draggable Logo Toggle)
@@ -38,11 +44,11 @@ IconButton.Active = true
 
 IconCorner.CornerRadius = UDim.new(0, 12)
 IconCorner.Parent = IconButton
-IconStroke.Color = Color3.fromRGB(0, 255, 170) -- มิ้นต์
+IconStroke.Color = Color3.fromRGB(0, 255, 170)
 IconStroke.Thickness = 2
 IconStroke.Parent = IconButton
 
--- ทำให้ปุ่มไอคอนลอยสามารถลากขยับได้
+-- ระบบเลื่อนปุ่มอิสระ (Draggable Icon)
 local draggingIcon, dragInputIcon, dragStartIcon, startPosIcon
 IconButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -82,16 +88,23 @@ MainFrame.Name = "AutoSyncMainLarge"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 16)
 MainFrame.Position = UDim2.new(0.2, 0, 0.15, 0)
-MainFrame.Size = UDim2.new(0, 750, 0, 480) -- แผ่นสี่เหลี่ยมผืนผ้าขนาดใหญ่
+MainFrame.Size = UDim2.new(0, 780, 0, 520) -- แผ่นสี่เหลี่ยมผืนผ้าขนาดใหญ่สะใจ
 MainFrame.Active = true
 
 MainCorner.CornerRadius = UDim.new(0, 14)
 MainCorner.Parent = MainFrame
-MainStroke.Color = Color3.fromRGB(220, 40, 60) -- แดง
+MainStroke.Color = Color3.fromRGB(220, 40, 60)
 MainStroke.Thickness = 2
 MainStroke.Parent = MainFrame
 
--- ทำให้หน้าต่างหลักลากเลื่อนได้
+-- แถบหัวข้อบนลากย้ายหน้าต่างได้
+TopBar.Name = "TopBar"
+TopBar.Parent = MainFrame
+TopBar.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+TopBar.Size = UDim2.new(1, 0, 0, 55)
+TopCorner.CornerRadius = UDim.new(0, 14)
+TopCorner.Parent = TopBar
+
 local draggingMain, dragInputMain, dragStartMain, startPosMain
 TopBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -115,14 +128,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- แถบหัวข้อด้านบน (TopBar)
-TopBar.Name = "TopBar"
-TopBar.Parent = MainFrame
-TopBar.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-TopBar.Size = UDim2.new(1, 0, 0, 55)
-TopCorner.CornerRadius = UDim.new(0, 14)
-TopCorner.Parent = TopBar
-
 LogoImg.Parent = TopBar
 LogoImg.BackgroundTransparency = 1
 LogoImg.Position = UDim2.new(0, 15, 0, 7)
@@ -134,9 +139,9 @@ Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0, 68, 0, 0)
 Title.Size = UDim2.new(0.5, 0, 1, 0)
 Title.Font = Enum.Font.GothamBold
-Title.Text = "AUTOSYNC HUB"
-Title.TextColor3 = Color3.fromRGB(0, 255, 170) -- มิ้นต์
-Title.TextSize = 18
+Title.Text = "AUTOSYNC HUB - PREMIUM ULTIMATE SUITE"
+Title.TextColor3 = Color3.fromRGB(0, 255, 170)
+Title.TextSize = 16
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
 CloseBtn.Parent = TopBar
@@ -145,28 +150,94 @@ CloseBtn.Position = UDim2.new(1, -45, 0, 12)
 CloseBtn.Size = UDim2.new(0, 30, 0, 30)
 CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(220, 40, 60) -- แดง
+CloseBtn.TextColor3 = Color3.fromRGB(220, 40, 60)
 CloseBtn.TextSize = 20
 
--- Content Area
-local ContentScroll = Instance.new("ScrollingFrame")
-local ContentList = Instance.new("UIListLayout")
-ContentScroll.Parent = MainFrame
-ContentScroll.BackgroundTransparency = 1
-ContentScroll.Position = UDim2.new(0, 20, 0, 75)
-ContentScroll.Size = UDim2.new(1, -40, 1, -95)
-ContentScroll.CanvasSize = UDim2.new(0, 0, 0, 720)
-ContentScroll.ScrollBarThickness = 4
-ContentScroll.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 170)
+-- ระบบสลับหน้าแท็บภายในพื้นที่ขนาดใหญ่ (Sidebar Layout)
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Parent = MainFrame
+Sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Sidebar.Position = UDim2.new(0, 0, 0, 55)
+Sidebar.Size = UDim2.new(0, 180, 1, -55)
 
-ContentList.Parent = ContentScroll
-ContentList.SortOrder = Enum.SortOrder.LayoutOrder
-ContentList.Padding = UDim.new(0, 15)
+local ContainerFrame = Instance.new("Frame")
+ContainerFrame.Name = "ContainerFrame"
+ContainerFrame.Parent = MainFrame
+ContainerFrame.BackgroundTransparency = 1
+ContainerFrame.Position = UDim2.new(0, 195, 0, 70)
+ContainerFrame.Size = UDim2.new(1, -210, 1, -85)
+
+local SideList = Instance.new("UIListLayout")
+SideList.Parent = Sidebar
+SideList.Padding = UDim.new(0, 5)
+SideList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local tabPages = {}
+
+local function AddTab(name, order)
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Size = UDim2.new(1, 0, 0, 42)
+    TabBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
+    TabBtn.BackgroundTransparency = 1
+    TabBtn.Font = Enum.Font.GothamSemibold
+    TabBtn.Text = "  " .. name
+    TabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    TabBtn.TextSize = 13
+    TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+    TabBtn.LayoutOrder = order
+    TabBtn.Parent = Sidebar
+    
+    local Page = Instance.new("ScrollingFrame")
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.BackgroundTransparency = 1
+    Page.Visible = false
+    Page.ScrollBarThickness = 3
+    Page.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 170)
+    Page.CanvasSize = UDim2.new(0, 0, 0, 800)
+    Page.Parent = ContainerFrame
+    
+    local PageList = Instance.new("UIListLayout")
+    PageList.Parent = Page
+    PageList.Padding = UDim.new(0, 12)
+    PageList.SortOrder = Enum.SortOrder.LayoutOrder
+    
+    tabPages[name] = {Button = TabBtn, Scroll = Page}
+    
+    TabBtn.MouseButton1Click:Connect(function()
+        for tName, tData in pairs(tabPages) do
+            if tName == name then
+                tData.Scroll.Visible = true
+                tData.Button.TextColor3 = Color3.fromRGB(0, 255, 170)
+                tData.Button.BackgroundTransparency = 0
+                tData.Button.BackgroundColor3 = Color3.fromRGB(26, 40, 36)
+            else
+                tData.Scroll.Visible = false
+                tData.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+                tData.Button.BackgroundTransparency = 1
+            end
+        end
+    end)
+    
+    return Page
+end
+
+-- สร้างแท็บหน้าต่าง v4
+local MainTab = AddTab("Player Controls", 1)
+local CombatTab = AddTab("Combat Options", 2)
+local VisualsTab = AddTab("Visuals & World", 3)
+local DevTab = AddTab("Developer Tools", 4)
+
+-- เปิดหน้าแรกเป็นค่าเริ่มต้น
+tabPages["Player Controls"].Scroll.Visible = true
+tabPages["Player Controls"].Button.TextColor3 = Color3.fromRGB(0, 255, 170)
+tabPages["Player Controls"].Button.BackgroundTransparency = 0
+tabPages["Player Controls"].Button.BackgroundColor3 = Color3.fromRGB(26, 40, 36)
 
 -- =================================================================
--- 3. ฟังก์ชันการสร้าง UI Elements แบบระวัง Error
+-- 3. ฟังก์ชันตัวสร้าง UI Elements ระดับละเอียด (Error-Safe Elements)
 -- =================================================================
-local function CreateLargeToggle(text, default, callback)
+local function CreateLargeToggle(parent, text, default, callback)
     local Frame = Instance.new("Frame")
     local Label = Instance.new("TextLabel")
     local Btn = Instance.new("TextButton")
@@ -175,7 +246,7 @@ local function CreateLargeToggle(text, default, callback)
     
     Frame.Size = UDim2.new(0.98, 0, 0, 48)
     Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
-    Frame.Parent = ContentScroll
+    Frame.Parent = parent
     local fCorner = Instance.new("UICorner")
     fCorner.CornerRadius = UDim.new(0, 8)
     fCorner.Parent = Frame
@@ -186,7 +257,7 @@ local function CreateLargeToggle(text, default, callback)
     Label.Font = Enum.Font.GothamSemibold
     Label.Text = text
     Label.TextColor3 = Color3.fromRGB(240, 240, 240)
-    Label.TextSize = 14
+    Label.TextSize = 13
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Frame
     
@@ -212,13 +283,11 @@ local function CreateLargeToggle(text, default, callback)
         local targetPos = enabled and UDim2.new(1, -24, 0, 3) or UDim2.new(0, 4, 0, 3)
         local targetColor = enabled and Color3.fromRGB(0, 255, 170) or Color3.fromRGB(130, 130, 130)
         TweenService:Create(Indicator, TweenInfo.new(0.2), {Position = targetPos, BackgroundColor3 = targetColor}):Play()
-        
-        -- ใช้ pcall เพื่อป้องกันโค้ดค้างหากฟังก์ชันด้านในรันไม่ได้
         pcall(callback, enabled)
     end)
 end
 
-local function CreateLargeSlider(text, min, max, default, callback)
+local function CreateLargeSlider(parent, text, min, max, default, callback)
     local Frame = Instance.new("Frame")
     local Label = Instance.new("TextLabel")
     local ValueLabel = Instance.new("TextLabel")
@@ -228,7 +297,7 @@ local function CreateLargeSlider(text, min, max, default, callback)
     
     Frame.Size = UDim2.new(0.98, 0, 0, 55)
     Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
-    Frame.Parent = ContentScroll
+    Frame.Parent = parent
     local fCorner = Instance.new("UICorner")
     fCorner.CornerRadius = UDim.new(0, 8)
     fCorner.Parent = Frame
@@ -239,7 +308,7 @@ local function CreateLargeSlider(text, min, max, default, callback)
     Label.Font = Enum.Font.GothamSemibold
     Label.Text = text
     Label.TextColor3 = Color3.fromRGB(240, 240, 240)
-    Label.TextSize = 14
+    Label.TextSize = 13
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Frame
     
@@ -249,7 +318,7 @@ local function CreateLargeSlider(text, min, max, default, callback)
     ValueLabel.Font = Enum.Font.GothamBold
     ValueLabel.Text = tostring(default)
     ValueLabel.TextColor3 = Color3.fromRGB(0, 255, 170)
-    ValueLabel.TextSize = 14
+    ValueLabel.TextSize = 13
     ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
     ValueLabel.Parent = Frame
     
@@ -262,7 +331,7 @@ local function CreateLargeSlider(text, min, max, default, callback)
     bCorner.Parent = Bar
     
     Fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-    Fill.BackgroundColor3 = Color3.fromRGB(220, 40, 60) -- แดง
+    Fill.BackgroundColor3 = Color3.fromRGB(220, 40, 60)
     Fill.Parent = Bar
     local fiCorner = Instance.new("UICorner")
     fiCorner.CornerRadius = UDim.new(1, 0)
@@ -292,46 +361,98 @@ local function CreateLargeSlider(text, min, max, default, callback)
     end)
 end
 
+local function CreateLargeButton(parent, text, callback)
+    local Btn = Instance.new("TextButton")
+    local Corner = Instance.new("UICorner")
+    
+    Btn.Size = UDim2.new(0.98, 0, 0, 42)
+    Btn.BackgroundColor3 = Color3.fromRGB(220, 40, 60)
+    Btn.Font = Enum.Font.GothamBold
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Btn.TextSize = 13
+    Btn.Parent = parent
+    
+    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.Parent = Btn
+    
+    Btn.MouseButton1Click:Connect(function()
+        pcall(callback)
+    end)
+end
 -- =================================================================
--- 4. บรรจุระบบฟังก์ชัน (เพิ่มระบบดักจับ ป้องกันการขึ้น Nil)
+-- 4. บรรจุฟังก์ชันการทำงานแยกตามแท็บ
 -- =================================================================
 
--- ปรับระดับความเร็วการวิ่งอย่างละเอียด
-CreateLargeSlider("WalkSpeed Control (ความเร็วการวิ่ง)", 16, 250, 16, function(value)
+-- [TAB 1: PLAYER CONTROLS]
+CreateLargeSlider(MainTab, "WalkSpeed Control (ความเร็ววิ่ง)", 16, 300, 16, function(v)
     if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
-        lp.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
+        lp.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = v
     end
 end)
 
--- ปรับระดับแรงกระโดดอย่างละเอียด
-CreateLargeSlider("JumpPower Control (แรงกระโดด)", 50, 300, 50, function(value)
+CreateLargeSlider(MainTab, "JumpPower Control (แรงกระโดด)", 50, 350, 50, function(v)
     if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
         lp.Character:FindFirstChildOfClass("Humanoid").UseJumpPower = true
-        lp.Character:FindFirstChildOfClass("Humanoid").JumpPower = value
+        lp.Character:FindFirstChildOfClass("Humanoid").JumpPower = v
     end
 end)
 
--- ปรับระยะความสูงช่วงสะโพก (ตัวลอย)
-CreateLargeSlider("HipHeight Control (ปรับตัวลอยข้ามสิ่งกีดขวาง)", 0, 50, 0, function(value)
+CreateLargeSlider(MainTab, "HipHeight Mod (ระยะสะโพก/ตัวลอย)", 0, 40, 0, function(v)
     if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
-        lp.Character:FindFirstChildOfClass("Humanoid").HipHeight = value
+        lp.Character:FindFirstChildOfClass("Humanoid").HipHeight = v
     end
 end)
 
--- ระบบกระโดดรัวกลางอากาศ
-local infJumpEnabled = false
-CreateLargeToggle("Infinite Jump (กระโดดรัวบนอากาศ)", false, function(state)
+CreateLargeToggle(MainTab, "Infinite Jump (กระโดดรัวกลางอากาศ)", false, function(state)
     infJumpEnabled = state
 end)
-UserInputService.JumpRequest:Connect(function()
-    if infJumpEnabled and lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
-        lp.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+
+-- [TAB 2: COMBAT OPTIONS]
+CreateLargeToggle(CombatTab, "Enable Aimbot (ล็อกเป้าผู้เล่นใกล้สุด)", false, function(state)
+    AimbotEnabled = state
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if AimbotEnabled then
+            pcall(function()
+                local target = nil
+                local dist = math.huge
+                for _, v in pairs(Players:GetPlayers()) do
+                    if v ~= lp and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        local d = (v.Character.HumanoidRootPart.Position - lp.Character.HumanoidRootPart.Position).Magnitude
+                        if d < dist then target = v; dist = d end
+                    end
+                end
+                if target then
+                    workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Character.HumanoidRootPart.Position)
+                end
+            end)
+        end
     end
 end)
 
--- ระบบล็อกเลือด (Safe Client God Mode)
-local GodModeEnabled = false
-CreateLargeToggle("God Mode Client (อมตะป้องกันเลือดลด)", false, function(state)
+CreateLargeToggle(CombatTab, "Auto Fire / Fast Clicker (คลิกรัวความถี่สูง)", false, function(state)
+    AutoClickEnabled = state
+end)
+
+task.spawn(function()
+    while task.wait(0.05) do
+        if AutoClickEnabled then
+            pcall(function()
+                local vim = game:GetService("VirtualInputManager")
+                if vim then
+                    vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                    task.wait(0.01)
+                    vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                end
+            end)
+        end
+    end
+end)
+
+CreateLargeToggle(CombatTab, "God Mode Client (อมตะป้องกันเลือดลด)", false, function(state)
     GodModeEnabled = state
     if state then
         task.spawn(function()
@@ -345,32 +466,31 @@ CreateLargeToggle("God Mode Client (อมตะป้องกันเลื�
                 task.wait(0.1)
             end
         end)
-    else
-        if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
-            lp.Character:FindFirstChildOfClass("Humanoid").MaxHealth = 100
-            lp.Character:FindFirstChildOfClass("Humanoid").Health = 100
+    end
+end)
+
+-- [TAB 3: VISUALS & WORLD]
+CreateLargeToggle(VisualsTab, "Player ESP Box (มองเห็นทะลุกำแพงขอบมิ้นต์)", false, function(state)
+    EspEnabled = state
+    if not state then
+        for _, v in pairs(Players:GetPlayers()) do
+            if v.Character and v.Character:FindFirstChild("Highlight") then
+                v.Character.Highlight:Destroy()
+            end
         end
     end
 end)
 
--- ระบบล่องหนขั้นสุด ลบทุกอย่าง
-local InvisibleEnabled = false
-CreateLargeToggle("Absolute Invisibility (ล่องหนขั้นสุดลบตัวละคร)", false, function(state)
-    InvisibleEnabled = state
-    if lp.Character then
-        for _, part in pairs(lp.Character:GetDescendants()) do
-            if part:IsA("BasePart") or part:IsA("Decal") or part:IsA("Clothing") or part:IsA("Accessory") then
-                if state then
-                    if part:IsA("BasePart") or part:IsA("Decal") then
-                        part.Transparency = 1
-                    else
-                        part.Enabled = false
-                    end
-                else
-                    if part:IsA("BasePart") or part:IsA("Decal") then
-                        part.Transparency = 0
-                    else
-                        part.Enabled = true
+task.spawn(function()
+    while task.wait(1) do
+        if EspEnabled then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= lp and v.Character then
+                    if not v.Character:FindFirstChild("Highlight") then
+                        local hl = Instance.new("Highlight")
+                        hl.Parent = v.Character
+                        hl.FillColor = Color3.fromRGB(0, 255, 170)
+                        hl.OutlineColor = Color3.fromRGB(220, 40, 60)
                     end
                 end
             end
@@ -378,8 +498,28 @@ CreateLargeToggle("Absolute Invisibility (ล่องหนขั้นสุ�
     end
 end)
 
--- บายพาสระบบตรวจจับแอนตี้ชีท (Safe Metatable Check)
-CreateLargeToggle("Anti-Cheat Bypass (ข้ามการตรวจสอบของเซิร์ฟเวอร์)", false, function(state)
+CreateLargeToggle(VisualsTab, "Absolute Invisibility (ล่องหนถอดสกินโมเดล)", false, function(state)
+    if lp.Character then
+        for _, part in pairs(lp.Character:GetDescendants()) do
+            if part:IsA("BasePart") or part:IsA("Decal") or part:IsA("Clothing") or part:IsA("Accessory") then
+                if state then
+                    if part:IsA("BasePart") or part:IsA("Decal") then part.Transparency = 1 else part.Enabled = false end
+                else
+                    if part:IsA("BasePart") or part:IsA("Decal") then part.Transparency = 0 else part.Enabled = true end
+                end
+            end
+        end
+    end
+end)
+
+CreateLargeButton(VisualsTab, "FullBright / Clear Fog (ปรับความสว่าง/ลบหมอก)", function()
+    game:GetService("Lighting").Brightness = 2
+    game:GetService("Lighting").ClockTime = 14
+    game:GetService("Lighting").FogEnd = 999999
+    game:GetService("Lighting").GlobalShadows = false
+end)
+
+CreateLargeToggle(VisualsTab, "Anti-Cheat Bypass (บายพาสเซิร์ฟเวอร์เบื้องต้น)", false, function(state)
     if state then
         pcall(function()
             local mt = getrawmetatable(game)
@@ -399,8 +539,16 @@ CreateLargeToggle("Anti-Cheat Bypass (ข้ามการตรวจสอบ
     end
 end)
 
+-- [TAB 4: DEVELOPER TOOLS]
+CreateLargeButton(DevTab, "Run Dark Dex Explorer (เจาะส่องไฟล์แมพ)", function()
+    loadstring(game:HttpGet("https://githubusercontent.com"))()
+end)
+
+CreateLargeButton(DevTab, "Run Hydroxide Remote Spy (ดักฟังสคริปต์)", function()
+    loadstring(game:HttpGet("https://githubusercontent.com"))()
+end)
 -- =================================================================
--- 5. ระบบบันทึกจุดจำตำแหน่งความตาย และปุ่มยืนยันถามก่อนวาร์ปกลับ
+-- 5. ระบบจำจุดตายแล้วขึ้น UI แจ้งเตือนถามก่อนวาร์ปกลับ
 -- =================================================================
 local TeleportPromptFrame = Instance.new("Frame")
 local PromptCorner = Instance.new("UICorner")
@@ -427,7 +575,7 @@ PromptTitle.Parent = TeleportPromptFrame
 PromptTitle.BackgroundTransparency = 1
 PromptTitle.Size = UDim2.new(1, 0, 0, 60)
 PromptTitle.Font = Enum.Font.GothamSemibold
-PromptTitle.Text = "ตรวจพบจุดตายล่าสุด!\nคุณต้องการวาร์ปกลับไปตรงนั้นไหม?"
+PromptTitle.Text = "ตรวจพบจุดตายล่าสุด!\nคุณต้องการเกิดและวาร์ปกลับไปตรงนั้นไหม?"
 PromptTitle.TextColor3 = Color3.fromRGB(240, 240, 240)
 PromptTitle.TextSize = 13
 
@@ -449,7 +597,6 @@ NoBtn.Text = "ไม่ ขอบคุณ"
 NoBtn.TextColor3 = Color3.fromRGB(220, 40, 60)
 local nC = Instance.new("UICorner") ; nC.CornerRadius = UDim.new(0,6) ; nC.Parent = NoBtn
 
--- ดักจับระบบบันทึกจุดตาย
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
@@ -463,7 +610,7 @@ task.spawn(function()
                 end)
             end
             if HasPrompted and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and LastDeathPosition then
-                task.wait(0.5)
+                task.wait(0.6)
                 TeleportPromptFrame.Visible = true
                 HasPrompted = false
             end
@@ -485,7 +632,7 @@ NoBtn.MouseButton1Click:Connect(function()
 end)
 
 -- =================================================================
--- 6. ระบบสลับหน้าการแสดงผล (Window Interface Toggling)
+-- 6. ระบบสลับเปิด-ปิดหน้าเมนูย่อส่วน (Window Interface Toggling)
 -- =================================================================
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
